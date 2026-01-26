@@ -1,0 +1,12 @@
+{
+    "name": "content-service",
+    "version": "1.0.0",
+    "description": "Mock content service for circuit breaker demo",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
+    }
+}

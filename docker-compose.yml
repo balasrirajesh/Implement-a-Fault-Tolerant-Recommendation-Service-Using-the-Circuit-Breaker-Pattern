@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  recommendation-service:
+    build: ./recommendation-service
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      - API_PORT=8080
+      - USER_PROFILE_URL=http://user-profile-service:8081
+      - CONTENT_URL=http://content-service:8082
+      - TRENDING_URL=http://trending-service:8083
+    depends_on:
+      user-profile-service:
+        condition: service_healthy
+      content-service:
+        condition: service_healthy
+      trending-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  user-profile-service:
+    build: ./user-profile-service
+    environment:
+      - PORT=8081
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  content-service:
+    build: ./content-service
+    environment:
+      - PORT=8082
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  trending-service:
+    build: ./trending-service
+    environment:
+      - PORT=8083
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8083/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+networks:
+  recommendation-network:
+    driver: bridge
